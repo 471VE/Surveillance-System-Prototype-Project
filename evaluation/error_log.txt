@@ -36,3 +36,16 @@ trackeval.utils.TrackEvalException: Attempting to evaluate using invalid gt clas
 
 
 
+MotChallenge2DBox
+test_tracker
+Traceback (most recent call last):
+  File "D:\Documents\Master of CV\DL in CV\evaluation\trackeval\eval.py", line 153, in evaluate
+    metric.plot_single_tracker_results(table_res, tracker_display_name, c_cls,
+  File "D:\Documents\Master of CV\DL in CV\evaluation\trackeval\metrics\hota.py", line 185, in plot_single_tracker_results
+    from matplotlib import pyplot as plt
+ModuleNotFoundError: No module named 'matplotlib'
+
+
+
+
+

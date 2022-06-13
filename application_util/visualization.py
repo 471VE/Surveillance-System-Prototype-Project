@@ -1,6 +1,7 @@
 # vim: expandtab:ts=4:sw=4
 import numpy as np
 import colorsys
+from tqdm.auto import tqdm
 from .image_viewer import ImageViewer
 
 
@@ -76,9 +77,12 @@ class NoVisualization(object):
         pass
 
     def run(self, frame_callback):
+        pbar = tqdm(total=self.last_idx)
         while self.frame_idx <= self.last_idx:
             frame_callback(self, self.frame_idx)
             self.frame_idx += 1
+            pbar.update(1)
+        pbar.close()
 
 
 class Visualization(object):
@@ -95,15 +99,18 @@ class Visualization(object):
         self.viewer.thickness = 2
         self.frame_idx = seq_info["min_frame_idx"]
         self.last_idx = seq_info["max_frame_idx"]
+        self.pbar = tqdm(total=self.last_idx)
 
     def run(self, frame_callback):
         self.viewer.run(lambda: self._update_fun(frame_callback))
 
     def _update_fun(self, frame_callback):
         if self.frame_idx > self.last_idx:
+            self.pbar.close()
             return False  # Terminate
         frame_callback(self, self.frame_idx)
         self.frame_idx += 1
+        self.pbar.update(1)
         return True
 
     def set_image(self, image):

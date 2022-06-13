@@ -114,7 +114,7 @@ def create_detections(detection_mat, frame_idx, min_height=0):
         Returns detection responses at given frame index.
 
     """
-    frame_indices = detection_mat[:, 0].astype(np.int)
+    frame_indices = detection_mat[:, 0].astype(int)
     mask = frame_indices == frame_idx
 
     detection_list = []
@@ -164,7 +164,7 @@ def run(sequence_dir, detection_file, output_file, min_confidence,
     results = []
 
     def frame_callback(vis, frame_idx):
-        print("Processing frame %05d" % frame_idx)
+        #print("Processing frame %05d" % frame_idx)
 
         # Load image and generate detections.
         detections = create_detections(
@@ -229,9 +229,8 @@ def parse_args():
         "--detection_file", help="Path to custom detections.", default=None,
         required=True)
     parser.add_argument(
-        "--output_file", help="Path to the tracking output file. This file will"
-        " contain the tracking results on completion.",
-        default="/tmp/hypotheses.txt")
+        "--output_dir", help="Folder in which the results will be stored. Will "
+        "be created if it does not exist.", default="results")
     parser.add_argument(
         "--min_confidence", help="Detection confidence threshold. Disregard "
         "all detections that have a confidence lower than this value.",
@@ -257,7 +256,9 @@ def parse_args():
 
 if __name__ == "__main__":
     args = parse_args()
+    os.makedirs(args.output_dir, exist_ok=True)
+    output_file = os.path.join(args.output_dir, f"{os.path.basename(args.sequence_dir)}.txt")
     run(
-        args.sequence_dir, args.detection_file, args.output_file,
+        args.sequence_dir, args.detection_file, output_file,
         args.min_confidence, args.nms_max_overlap, args.min_detection_height,
         args.max_cosine_distance, args.nn_budget, args.display)
