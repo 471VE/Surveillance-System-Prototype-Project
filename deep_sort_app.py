@@ -230,7 +230,7 @@ def parse_args():
         required=True)
     parser.add_argument(
         "--output_dir", help="Folder in which the results will be stored. Will "
-        "be created if it does not exist.", default="results")
+        "be created if it does not exist.", default="results/base/data/")
     parser.add_argument(
         "--min_confidence", help="Detection confidence threshold. Disregard "
         "all detections that have a confidence lower than this value.",

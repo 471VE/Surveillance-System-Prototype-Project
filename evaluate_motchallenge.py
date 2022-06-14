@@ -16,7 +16,7 @@ def parse_args():
         required=True)
     parser.add_argument(
         "--output_dir", help="Folder in which the results will be stored. Will "
-        "be created if it does not exist.", default="results")
+        "be created if it does not exist.", default="results/base/data/")
     parser.add_argument(
         "--min_confidence", help="Detection confidence threshold. Disregard "
         "all detections that have a confidence lower than this value.",
@@ -46,10 +46,14 @@ if __name__ == "__main__":
     os.makedirs(args.output_dir, exist_ok=True)
     sequences = os.listdir(args.mot_dir)
     for sequence in sequences:
-        print("Running sequence %s" % sequence)
         sequence_dir = os.path.join(args.mot_dir, sequence)
         detection_file = os.path.join(args.detection_dir, "%s.npy" % sequence)
         output_file = os.path.join(args.output_dir, "%s.txt" % sequence)
+        
+        if not os.path.isdir(sequence_dir):
+            continue
+        
+        print("Running sequence %s" % sequence)
         deep_sort_app.run(
             sequence_dir, detection_file, output_file, args.min_confidence,
             args.nms_max_overlap, args.min_detection_height,
