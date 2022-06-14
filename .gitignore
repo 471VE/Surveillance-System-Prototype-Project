@@ -1,6 +1,9 @@
 # Temporary until I figure things out
 MOT_temp
 
+# Results of calculations
+results
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

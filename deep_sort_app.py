@@ -230,7 +230,7 @@ def parse_args():
         required=True)
     parser.add_argument(
         "--output_dir", help="Folder in which the results will be stored. Will "
-        "be created if it does not exist.", default="results/base/data/")
+        "be created if it does not exist.", default="base_deepsort")
     parser.add_argument(
         "--min_confidence", help="Detection confidence threshold. Disregard "
         "all detections that have a confidence lower than this value.",
@@ -256,8 +256,9 @@ def parse_args():
 
 if __name__ == "__main__":
     args = parse_args()
-    os.makedirs(args.output_dir, exist_ok=True)
-    output_file = os.path.join(args.output_dir, f"{os.path.basename(args.sequence_dir)}.txt")
+    output_dir = f"results/{args.output_dir}/data"
+    os.makedirs(output_dir, exist_ok=True)
+    output_file = os.path.join(output_dir, f"{os.path.basename(args.sequence_dir)}.txt")
     run(
         args.sequence_dir, args.detection_file, output_file,
         args.min_confidence, args.nms_max_overlap, args.min_detection_height,
