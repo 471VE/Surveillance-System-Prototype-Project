@@ -1,12 +1,19 @@
-# vim: expandtab:ts=4:sw=4
 import os
 import errno
 import argparse
 import numpy as np
 import cv2
 
+# Disable all the unnecessary warnings from TensorFlow, part 1
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
+
 import tensorflow.compat.v1 as tf
+
+# Disable all the unnecessary warnings from TensorFlow, part 2
+tf.logging.set_verbosity(tf.logging.ERROR)
 tf.disable_v2_behavior()
+
+
 
 
 def _run_in_batches(f, data_dict, out, batch_size):

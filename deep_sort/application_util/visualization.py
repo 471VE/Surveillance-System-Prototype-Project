@@ -136,3 +136,6 @@ class Visualization(object):
             self.viewer.color = create_unique_color_uchar(track.track_id)
             self.viewer.rectangle(
                 *track.to_tlwh().astype(np.int), label=str(track.track_id))
+            
+    def draw_fps(self, duration):
+        self.viewer.fps(duration)

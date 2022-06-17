@@ -2,7 +2,7 @@ import argparse
 import os
 import real_time_single
 
-from deep_sort_app import bool_string
+from real_time_single import bool_string
 from tools.generate_detections import create_box_encoder
 
 
@@ -10,7 +10,7 @@ def parse_args():
     """ Parse command line arguments.
     """
     parser = argparse.ArgumentParser(description="MOTChallenge evaluation")
-    parser.add_argument("--model", default="resources/networks/mars-small128.pb",
+    parser.add_argument("--model", default="resources/feature_generation/mars-small128.pb",
         help="Path to freezed inference graph protobuf.")
     parser.add_argument(
         "--mot_dir", help="Path to MOTChallenge directory (train or test)",
@@ -21,7 +21,7 @@ def parse_args():
     parser.add_argument(
         "--min_confidence", help="Detection confidence threshold. Disregard "
         "all detections that have a confidence lower than this value.",
-        default=0.0, type=float)
+        default=0.35, type=float)
     parser.add_argument(
         "--min_detection_height", help="Threshold on the detection bounding "
         "box height. Detections with height smaller than this value are "
@@ -42,7 +42,21 @@ def parse_args():
 
 
 if __name__ == "__main__":
-    args = parse_args()
+    args = parse_args() 
+       
+    detection_choices = {
+        0: "Detections provided by MOT benchmarks",
+        1: "NanoDet-Plus-m",
+        2: "NanoDet-Plus-m-1.5x",
+    }
+    detection_model_prompt = (
+        "\nChoose detection model:\n" +
+        "".join([f"{key}. {detection_choices[key]}.\n" for key in detection_choices])
+    )
+    detection_mode = int(input(detection_model_prompt))
+    if detection_mode not in (0, 1, 2):
+        raise Exception("Unsupported detection model. Exiting...")
+    print(f"Choosing option {detection_mode} - {detection_choices[detection_mode]}...\n")
 
     output_dir = f"results/{args.output_dir}/data"
     os.makedirs(output_dir, exist_ok=True)
@@ -59,6 +73,6 @@ if __name__ == "__main__":
             continue
         
         print("Running sequence %s" % sequence)
-        real_time_single.run_app(encoder, sequence_dir, output_file, args.min_confidence,
+        real_time_single.run_app(detection_mode, encoder, sequence_dir, output_file, args.min_confidence,
             args.nms_max_overlap, args.min_detection_height, args.max_cosine_distance,
             args.nn_budget, args.display)

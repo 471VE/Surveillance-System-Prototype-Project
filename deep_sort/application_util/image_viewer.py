@@ -110,6 +110,8 @@ class ImageViewer(object):
         self._color = (0, 0, 0)
         self.text_color = (255, 255, 255)
         self.thickness = 1
+        self.fps_org = (10, 33)
+        self.fps_color = (0, 255, 0)
 
     @property
     def color(self):
@@ -152,6 +154,14 @@ class ImageViewer(object):
             cv2.rectangle(self.image, pt1, pt2, self._color, -1)
             cv2.putText(self.image, label, center, cv2.FONT_HERSHEY_PLAIN,
                         1, (255, 255, 255), self.thickness)
+    
+    def fps(self, duration):
+        fps = f"FPS: {1/duration:.1f}"
+        cv2.putText(self.image, fps, self.fps_org, cv2.FONT_HERSHEY_PLAIN,
+                    2, (0, 0, 0), self.thickness * 2)
+        cv2.putText(self.image, fps, self.fps_org, cv2.FONT_HERSHEY_PLAIN,
+                    2, self.fps_color, self.thickness)
+        
 
     def circle(self, x, y, radius, label=None):
         """Draw a circle.
