@@ -2,15 +2,16 @@ import argparse
 import os
 import real_time_single
 
-from real_time_single import bool_string
-from tools.generate_detections import create_box_encoder
+from real_time_single import bool_string, initial_setup
 
 
 def parse_args():
     """ Parse command line arguments.
     """
     parser = argparse.ArgumentParser(description="MOTChallenge evaluation")
-    parser.add_argument("--model", default="resources/feature_generation/mars-small128.pb",
+    parser.add_argument(
+        "--model",
+        default="resources/feature_generation/deep_sort_unmodified/model_weights/mars-small128.pb",
         help="Path to freezed inference graph protobuf.")
     parser.add_argument(
         "--mot_dir", help="Path to MOTChallenge directory (train or test)",
@@ -43,32 +44,12 @@ def parse_args():
 
 if __name__ == "__main__":
     args = parse_args() 
-       
-    detection_choices = {
-        0: "Detections provided by MOT benchmarks",
-        1: "NanoDet-Plus-m",
-        2: "NanoDet-Plus-m-1.5x",
-    }
-    detection_model_prompt = (
-        "\nChoose detection model:\n" +
-        "".join([f"{key}. {detection_choices[key]}.\n" for key in detection_choices])
-    )
-    detection_mode = int(input(detection_model_prompt))
-    if detection_mode not in (0, 1, 2):
-        raise Exception("Unsupported detection model. Exiting...")
-    print(f"Choosing option {detection_mode} - {detection_choices[detection_mode]}...\n")
-
-    output_dir = f"results/{args.output_dir}/data"
-    os.makedirs(output_dir, exist_ok=True)
+    detection_mode, encoder, output_dir = initial_setup(args)
     sequences = os.listdir(args.mot_dir)
-    
-    encoder = create_box_encoder(args.model, batch_size=32)
     
     for sequence in sequences:
         sequence_dir = os.path.join(args.mot_dir, sequence)
-        output_file = os.path.join(output_dir, f"{sequence}.txt")
-        print(output_file)
-        
+        output_file = os.path.join(output_dir, f"{sequence}.txt")        
         if not os.path.isdir(sequence_dir):
             continue
         

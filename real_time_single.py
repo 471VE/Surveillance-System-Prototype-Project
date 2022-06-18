@@ -9,12 +9,12 @@ from deep_sort.deep_sort import nn_matching
 from deep_sort.deep_sort.tracker import Tracker
 from deep_sort.deep_sort.detection import Detection
 
-import tools.generate_detections as gd
+import resources.feature_generation.deep_sort_unmodified.generate_detections as gd
 
 
 def bool_string(input_string):
     if input_string not in {"True","False"}:
-        raise ValueError("Please Enter a valid Ture/False choice")
+        raise ValueError("Please Enter a valid True/False choice")
     else:
         return (input_string == "True")
 
@@ -80,13 +80,21 @@ def gather_sequence_info(sequence_dir):
     return seq_info
 
 
-detection_dict = {
+detection_choices = {
     0: {"model": "None",
-        "config": "None"},
+        "config": "None",
+        "description": "Detections provided by MOT benchmarks",
+        "short_name": "MOT_detections"},
+    
     1: {"model": "resources/detection/nanodet/model_weights/nanodet-plus-m_416.pth",
-        "config": "resources/detection/nanodet/config/nanodet-plus-m_416.yml"},
+        "config": "resources/detection/nanodet/config/nanodet-plus-m_416.yml",
+        "description": "NanoDet-Plus-m",
+        "short_name": "nanodet_plus_m"},
+    
     2: {"model": "resources/detection/nanodet/model_weights/nanodet-plus-m-1.5x_416.pth",
-        "config": "resources/detection/nanodet/config/nanodet-plus-m-1.5x_416.yml"},
+        "config": "resources/detection/nanodet/config/nanodet-plus-m-1.5x_416.yml",
+        "description": "NanoDet-Plus-m-1.5x",
+        "short_name": "nanodet_plus_m_1.5x"},
 }
 
 
@@ -121,8 +129,8 @@ def run_app(detection_mode, encoder, sequence_dir, output_file, min_confidence,
         torch.backends.cudnn.enabled = True
         torch.backends.cudnn.benchmark = True
         
-        load_config(cfg, detection_dict[detection_mode]["config"])
-        detector = Predictor(cfg, detection_dict[detection_mode]["model"])
+        load_config(cfg, detection_choices[detection_mode]["config"])
+        detector = Predictor(cfg, detection_choices[detection_mode]["model"])
 
     def frame_callback(vis, frame_idx):
         begin_time = time()
@@ -180,14 +188,13 @@ def parse_args():
     """ Parse command line arguments.
     """
     parser = argparse.ArgumentParser(description="Deep SORT")
-    parser.add_argument("--model", default="resources/feature_generation/mars-small128.pb",
+    parser.add_argument(
+        "--model",
+        default="resources/feature_generation/deep_sort_unmodified/model_weights/mars-small128.pb",
         help="Path to freezed inference graph protobuf.")
     parser.add_argument(
         "--sequence_dir", help="Path to MOTChallenge sequence directory",
         default=None, required=True)
-    parser.add_argument(
-        "--output_dir", help="Folder in which the results will be stored. Will "
-        "be created if it does not exist.", default="base_deepsort")
     parser.add_argument(
         "--min_confidence", help="Detection confidence threshold. Disregard "
         "all detections that have a confidence lower than this value.",
@@ -210,29 +217,28 @@ def parse_args():
         default=True, type=bool_string)
     return parser.parse_args()    
      
-          
-def main():
-    args = parse_args()
-    
-    detection_choices = {
-        0: "Detections provided by MOT benchmarks",
-        1: "NanoDet-Plus-m",
-        2: "NanoDet-Plus-m-1.5x",
-    }
+     
+def initial_setup(args):
     detection_model_prompt = (
         "\nChoose detection model:\n" +
-        "".join([f"{key}. {detection_choices[key]}.\n" for key in detection_choices])
+        "".join([f"{key}. {detection_choices[key]['description']}.\n" for key in detection_choices])
     )
     detection_mode = int(input(detection_model_prompt))
     if detection_mode not in (0, 1, 2):
         raise Exception("Unsupported detection model. Exiting...")
-    print(f"Choosing option {detection_mode} - {detection_choices[detection_mode]}...\n")
+    print(f"Choosing option {detection_mode} - {detection_choices[detection_mode]['description']}...\n")
     
-    output_dir = f"results/{args.output_dir}/data"
+    output_dir = f"results/{detection_choices[detection_mode]['short_name']}/data"
     os.makedirs(output_dir, exist_ok=True)
-    output_file = os.path.join(output_dir, f"{os.path.basename(args.sequence_dir)}.txt")
 
     encoder = gd.create_box_encoder(args.model, batch_size=32)
+    return detection_mode, encoder, output_dir
+    
+          
+def main():
+    args = parse_args()    
+    detection_mode, encoder, output_dir = initial_setup(args)
+    output_file = os.path.join(output_dir, f"{os.path.basename(args.sequence_dir)}.txt")
     
     run_app(detection_mode, encoder, args.sequence_dir, output_file, args.min_confidence,
         args.nms_max_overlap, args.min_detection_height, args.max_cosine_distance,

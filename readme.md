@@ -4,7 +4,7 @@ By default, it uses 2 cores.
 
 Examples:
 ```
-python real_time_single.py --sequence_dir=./MOT_custom/KITTI-17 --min_confidence=0.3 --nn_budget=100
+python real_time_single.py --sequence_dir=./MOT_custom/KITTI-17 --nn_budget=100
 
 python real_time_all.py --mot_dir=./MOT_custom
 

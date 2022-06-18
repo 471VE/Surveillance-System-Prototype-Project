@@ -1,8 +1,11 @@
-# Temporary until I figure things out
+# More MOT benchmarks
 MOT_temp
 
 # Results of calculations
 results
+
+# Model weights
+**/model_weights/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
