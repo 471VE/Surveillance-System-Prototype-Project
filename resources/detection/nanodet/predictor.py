@@ -9,7 +9,7 @@ from .nanodet.util import cfg, load_model_weight
 
 
 class Predictor(object):
-    def __init__(self, cfg, model_path):
+    def __init__(self, cfg, model_path, min_conf):
         device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
         self.cfg = cfg
         self.device = device
@@ -25,8 +25,9 @@ class Predictor(object):
             model = repvgg_det_model_convert(model, deploy_model)
         self.model = model.to(device).eval()
         self.pipeline = Pipeline(cfg.data.val.pipeline, cfg.data.val.keep_ratio)
+        self.min_conf = min_conf
 
-    def inference(self, img, score_thres):
+    def inference(self, img):
         img_info = {"id": 0}
         img_info["file_name"] = None
         
@@ -41,7 +42,7 @@ class Predictor(object):
         with torch.no_grad():
             results = self.model.inference(meta)
         results = [results[0][label] for label in results[0] if cfg.class_names[label] == "person"][0]
-        results = np.array([person for person in results if person[4] > score_thres])
+        results = np.array([person for person in results if person[4] > self.min_conf])
         results[:, 2] -= results[:, 0]
         results[:, 3] -= results[:, 1]
         h, _ = results.shape

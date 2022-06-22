@@ -10,6 +10,8 @@ from deep_sort.deep_sort.tracker import Tracker
 from deep_sort.deep_sort.detection import Detection
 
 import resources.feature_generation.deep_sort_unmodified.generate_detections as gd
+from utils.model_info import detection_choices
+from utils.load_models import load_detector
 
 
 def bool_string(input_string):
@@ -80,31 +82,6 @@ def gather_sequence_info(sequence_dir):
     return seq_info
 
 
-detection_choices = {
-    0: {"model": "None",
-        "config": "None",
-        "description": "Detections provided by MOT benchmarks",
-        "short_name": "MOT_detections"},
-    
-    1: {"model": "resources/detection/nanodet/model_weights/nanodet-plus-m_416.pth",
-        "config": "resources/detection/nanodet/config/nanodet-plus-m_416.yml",
-        "description": "NanoDet-Plus-m",
-        "short_name": "nanodet_plus_m"},
-    
-    2: {"model": "resources/detection/nanodet/model_weights/nanodet-plus-m-1.5x_416.pth",
-        "config": "resources/detection/nanodet/config/nanodet-plus-m-1.5x_416.yml",
-        "description": "NanoDet-Plus-m-1.5x",
-        "short_name": "nanodet_plus_m_1.5x"},
-}
-
-
-def generate_detections(detection_mode, detector, image, frame_idx, min_confidence):
-    if not detection_mode:
-        mask = detector["frame_indices"] == frame_idx
-        return detector["detections_in"][mask]
-    return detector.inference(image, min_confidence)
-
-
 def run_app(detection_mode, encoder, sequence_dir, output_file, min_confidence,
     nms_max_overlap, min_detection_height, max_cosine_distance,
     nn_budget, display):
@@ -115,34 +92,18 @@ def run_app(detection_mode, encoder, sequence_dir, output_file, min_confidence,
     tracker = Tracker(metric)
     results = []
     
-    detector = None
-    if not detection_mode:    
-        detections_in = np.loadtxt(os.path.join(sequence_dir, "det/det.txt"), delimiter=',')
-        frame_indices = detections_in[:, 0].astype(int)
-        detector = {"detections_in": detections_in, "frame_indices": frame_indices}
-    else:
-        import torch
-        
-        from resources.detection.nanodet.nanodet.util import cfg, load_config
-        from resources.detection.nanodet.predictor import Predictor
-        
-        torch.backends.cudnn.enabled = True
-        torch.backends.cudnn.benchmark = True
-        
-        load_config(cfg, detection_choices[detection_mode]["config"])
-        detector = Predictor(cfg, detection_choices[detection_mode]["model"])
+    detector = load_detector(detection_mode, detection_choices, sequence_dir, min_confidence)
 
     def frame_callback(vis, frame_idx):
         begin_time = time()
         
         image = cv2.imread(seq_info["image_filenames"][frame_idx], cv2.IMREAD_COLOR)
         
-        rows = generate_detections(detection_mode, detector, image, frame_idx, min_confidence)            
+        rows = detector.inference(image)      
         detections = generate_frame_features(encoder, rows, image)
 
         # Load image and generate detections.
         detections = create_detections(detections, min_detection_height)
-        detections = [d for d in detections if d.confidence >= min_confidence]
 
         # Run non-maxima suppression.
         boxes = np.array([d.tlwh for d in detections])
@@ -190,7 +151,7 @@ def parse_args():
     parser = argparse.ArgumentParser(description="Deep SORT")
     parser.add_argument(
         "--model",
-        default="resources/feature_generation/deep_sort_unmodified/model_weights/mars-small128.pb",
+        default="weights/mars-small128.pb",
         help="Path to freezed inference graph protobuf.")
     parser.add_argument(
         "--sequence_dir", help="Path to MOTChallenge sequence directory",
@@ -224,7 +185,7 @@ def initial_setup(args):
         "".join([f"{key}. {detection_choices[key]['description']}.\n" for key in detection_choices])
     )
     detection_mode = int(input(detection_model_prompt))
-    if detection_mode not in (0, 1, 2):
+    if detection_mode not in range(5):
         raise Exception("Unsupported detection model. Exiting...")
     print(f"Choosing option {detection_mode} - {detection_choices[detection_mode]['description']}...\n")
     

@@ -11,7 +11,7 @@ def parse_args():
     parser = argparse.ArgumentParser(description="MOTChallenge evaluation")
     parser.add_argument(
         "--model",
-        default="resources/feature_generation/deep_sort_unmodified/model_weights/mars-small128.pb",
+        default="weights/mars-small128.pb",
         help="Path to freezed inference graph protobuf.")
     parser.add_argument(
         "--mot_dir", help="Path to MOTChallenge directory (train or test)",

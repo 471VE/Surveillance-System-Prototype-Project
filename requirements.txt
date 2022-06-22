@@ -16,3 +16,5 @@ torch>=1.7
 torchmetrics
 torchvision
 tqdm
+thop
+ninja

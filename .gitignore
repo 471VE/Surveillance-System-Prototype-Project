@@ -5,7 +5,7 @@ MOT_temp
 results
 
 # Model weights
-resources/*/*/model_weights/
+weights/*
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
