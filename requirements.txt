@@ -18,3 +18,5 @@ torchvision
 tqdm
 thop
 ninja
+alfred-py
+git+https://github.com/facebookresearch/detectron2.git

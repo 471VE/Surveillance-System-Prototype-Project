@@ -181,11 +181,11 @@ def parse_args():
      
 def initial_setup(args):
     detection_model_prompt = (
-        "\nChoose detection model:\n" +
+        "\nChoose detection or segmentation model:\n" +
         "".join([f"{key}. {detection_choices[key]['description']}.\n" for key in detection_choices])
     )
     detection_mode = int(input(detection_model_prompt))
-    if detection_mode not in range(5):
+    if detection_mode not in range(len(detection_choices)):
         raise Exception("Unsupported detection model. Exiting...")
     print(f"Choosing option {detection_mode} - {detection_choices[detection_mode]['description']}...\n")
     

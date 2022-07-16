@@ -22,5 +22,15 @@ detection_choices = {
     4: {"model": "weights/yolox_l.pth",
         "config": "resources/detection/yolox/exps/yolox_l.py",
         "description": "YOLOX-l",
-        "short_name": "yolox_l"}
+        "short_name": "yolox_l"},
+    
+    5: {"model": "weights/mask_rcnn.pkl",
+        "config": "COCO-InstanceSegmentation/mask_rcnn_R_50_FPN_3x.yaml",
+        "description": "Mask R-CNN (R50-FPN)",
+        "short_name": "mask_rcnn"},
+    
+    6: {"model": "weights/cascade_mask_rcnn.pkl",
+        "config": "Misc/cascade_mask_rcnn_R_50_FPN_3x.yaml",
+        "description": "Cascade R-CNN (R50-FPN)",
+        "short_name": "cascade_mask_rcnn"}
 }
