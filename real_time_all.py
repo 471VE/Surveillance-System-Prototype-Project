@@ -9,10 +9,7 @@ def parse_args():
     """ Parse command line arguments.
     """
     parser = argparse.ArgumentParser(description="MOTChallenge evaluation")
-    parser.add_argument(
-        "--model",
-        default="weights/mars-small128.pb",
-        help="Path to freezed inference graph protobuf.")
+
     parser.add_argument(
         "--mot_dir", help="Path to MOTChallenge directory (train or test)",
         required=True)

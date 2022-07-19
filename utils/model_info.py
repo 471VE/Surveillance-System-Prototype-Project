@@ -34,3 +34,40 @@ detection_choices = {
         "description": "Cascade R-CNN (R50-FPN)",
         "short_name": "cascade_mask_rcnn"}
 }
+
+extractor_choices = {
+    0: {"model_path": "weights/mars-small128.pb",
+        "model_name": None,
+        "description": "Deafult DeepSORT feature extractor",
+        "short_name": "default_deepsort"},
+    
+    1: {"model_path": "weights/shufflenet.pth.tar",
+        "model_name": "shufflenet",
+        "description": "ShuffleNet",
+        "short_name": "shufflenet"},
+    
+    2: {"model_path": "weights/mlfn.pth.tar",
+        "model_name": "mlfn",
+        "description": "Multilayered Feedforward Neural Network",
+        "short_name": "mlfn"},
+    
+    3: {"model_path": "weights/mobilenetv2.pth",
+        "model_name": "mobilenetv2_x1_0",
+        "description": "MobileNetV2",
+        "short_name": "mobilenetv2"},
+    
+    4: {"model_path": "weights/osnet.pth",
+        "model_name": "osnet_x1_0",
+        "description": "OSNet",
+        "short_name": "osnet"},
+    
+    5: {"model_path": "weights/osnet_ain.pth",
+        "model_name": "osnet_ain_x1_0",
+        "description": "OSNet-AIN",
+        "short_name": "osnet_ain"},
+    
+    6: {"model_path": "weights/osnet_ibn.pth",
+        "model_name": "osnet_ibn_x1_0",
+        "description": "OSNet-IBN",
+        "short_name": "osnet_ibn"}
+}

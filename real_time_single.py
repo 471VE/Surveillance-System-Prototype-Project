@@ -9,8 +9,9 @@ from deep_sort.deep_sort import nn_matching
 from deep_sort.deep_sort.tracker import Tracker
 from deep_sort.deep_sort.detection import Detection
 
-import resources.feature_generation.deep_sort_unmodified.generate_detections as gd
-from utils.model_info import detection_choices
+import utils.feature_extractor_deepsort as fed
+import utils.feature_extractor as fe
+from utils.model_info import detection_choices, extractor_choices
 from utils.load_models import load_detector
 
 
@@ -108,8 +109,7 @@ def run_app(detection_mode, encoder, sequence_dir, output_file, min_confidence,
         # Run non-maxima suppression.
         boxes = np.array([d.tlwh for d in detections])
         scores = np.array([d.confidence for d in detections])
-        indices = preprocessing.non_max_suppression(
-            boxes, nms_max_overlap, scores)
+        indices = preprocessing.non_max_suppression(boxes, nms_max_overlap, scores)
         detections = [detections[i] for i in indices]
 
         # Update tracker.
@@ -150,10 +150,6 @@ def parse_args():
     """
     parser = argparse.ArgumentParser(description="Deep SORT")
     parser.add_argument(
-        "--model",
-        default="weights/mars-small128.pb",
-        help="Path to freezed inference graph protobuf.")
-    parser.add_argument(
         "--sequence_dir", help="Path to MOTChallenge sequence directory",
         default=None, required=True)
     parser.add_argument(
@@ -189,10 +185,26 @@ def initial_setup(args):
         raise Exception("Unsupported detection model. Exiting...")
     print(f"Choosing option {detection_mode} - {detection_choices[detection_mode]['description']}...\n")
     
-    output_dir = f"results/{detection_choices[detection_mode]['short_name']}/data"
+    extractor_model_prompt = (
+        "\nChoose ReID model:\n" +
+        "".join([f"{key}. {extractor_choices[key]['description']}.\n" for key in extractor_choices])
+    )
+    extractor_mode = int(input(extractor_model_prompt))
+    if extractor_mode not in range(len(extractor_choices)):
+        raise Exception("Unsupported detection model. Exiting...")
+    print(f"Choosing option {extractor_mode} - {extractor_choices[extractor_mode]['description']}...\n")
+    
+    if extractor_mode == 0:
+        encoder = fed.create_box_encoder(extractor_choices[extractor_mode]["model_path"], batch_size=32)
+    elif extractor_mode in range(1, len(extractor_choices)):
+        encoder = fe.create_feature_extractor(extractor_choices[extractor_mode]["model_name"],
+                                              extractor_choices[extractor_mode]["model_path"])
+    else:
+        raise Exception("Something went wrong when loading ReID model.")
+    
+    output_dir = f"results/{detection_choices[detection_mode]['short_name']}_{extractor_choices[extractor_mode]['short_name']}/data"
     os.makedirs(output_dir, exist_ok=True)
 
-    encoder = gd.create_box_encoder(args.model, batch_size=32)
     return detection_mode, encoder, output_dir
     
           

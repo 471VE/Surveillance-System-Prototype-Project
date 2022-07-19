@@ -14,8 +14,6 @@ tf.logging.set_verbosity(tf.logging.ERROR)
 tf.disable_v2_behavior()
 
 
-
-
 def _run_in_batches(f, data_dict, out, batch_size):
     data_len = len(out)
     num_batches = int(data_len / batch_size)
