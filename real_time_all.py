@@ -5,7 +5,7 @@ import real_time_single
 from real_time_single import bool_string, initial_setup
 
 
-def parse_args():
+def parse_args(args=None):
     """ Parse command line arguments.
     """
     parser = argparse.ArgumentParser(description="MOTChallenge evaluation")
@@ -36,12 +36,12 @@ def parse_args():
     parser.add_argument(
         "--display", help="Show intermediate tracking results",
         default=True, type=bool_string)
-    return parser.parse_args()
+    if not args:
+        return parser.parse_args() 
+    return parser.parse_args(args) 
 
-
-if __name__ == "__main__":
-    args = parse_args() 
-    detection_mode, encoder, output_dir = initial_setup(args)
+def main(args):
+    detection_mode, encoder, output_dir = initial_setup()
     sequences = os.listdir(args.mot_dir)
     
     for sequence in sequences:
@@ -54,3 +54,9 @@ if __name__ == "__main__":
         real_time_single.run_app(detection_mode, encoder, sequence_dir, output_file, args.min_confidence,
             args.nms_max_overlap, args.min_detection_height, args.max_cosine_distance,
             args.nn_budget, args.display)
+    
+def run_all_videos(path='./MOT_custom'):
+    main(parse_args([f'--mot_dir={path}']))
+    
+if __name__ == "__main__":
+    main(parse_args())

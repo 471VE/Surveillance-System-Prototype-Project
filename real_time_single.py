@@ -145,7 +145,7 @@ def run_app(detection_mode, encoder, sequence_dir, output_file, min_confidence,
             row[0], row[1], row[2], row[3], row[4], row[5]),file=f)
     
         
-def parse_args():
+def parse_args(args=None):
     """ Parse command line arguments.
     """
     parser = argparse.ArgumentParser(description="Deep SORT")
@@ -172,10 +172,12 @@ def parse_args():
     parser.add_argument(
         "--display", help="Show intermediate tracking results",
         default=True, type=bool_string)
-    return parser.parse_args()    
+    if not args:
+        return parser.parse_args() 
+    return parser.parse_args(args) 
      
      
-def initial_setup(args):
+def initial_setup():
     detection_model_prompt = (
         "\nChoose detection or segmentation model:\n" +
         "".join([f"{key}. {detection_choices[key]['description']}.\n" for key in detection_choices])
@@ -208,14 +210,16 @@ def initial_setup(args):
     return detection_mode, encoder, output_dir
     
           
-def main():
-    args = parse_args()    
-    detection_mode, encoder, output_dir = initial_setup(args)
+def main(args):
+    detection_mode, encoder, output_dir = initial_setup()
     output_file = os.path.join(output_dir, f"{os.path.basename(args.sequence_dir)}.txt")
     
     run_app(detection_mode, encoder, args.sequence_dir, output_file, args.min_confidence,
         args.nms_max_overlap, args.min_detection_height, args.max_cosine_distance,
         args.nn_budget, args.display)
     
+def run_single_video(video_name):
+    main(parse_args([f'--sequence_dir=./MOT_custom/{video_name}']))
+    
 if __name__ == "__main__":
-    main()
+    main(parse_args())

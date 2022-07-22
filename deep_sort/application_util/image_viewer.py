@@ -6,6 +6,11 @@ import numpy as np
 import cv2
 import time
 
+import sys
+
+def in_notebook():
+    return 'ipykernel' in sys.modules
+
 
 def is_in_bounds(mat, roi):
     """Check if ROI is fully contained in the image.
@@ -110,8 +115,16 @@ class ImageViewer(object):
         self._color = (0, 0, 0)
         self.text_color = (255, 255, 255)
         self.thickness = 1
+        
         self.fps_org = (10, 33)
         self.fps_color = (0, 255, 0)
+        
+        self.in_notebook = in_notebook()
+        if self.in_notebook:
+            global Image
+            from IPython.display import Image, DisplayHandle
+            self.display_handle = DisplayHandle()
+            self.first_frame = True
 
     @property
     def color(self):
@@ -318,22 +331,40 @@ class ImageViewer(object):
                         cv2.resize(self.image, self._window_shape))
             t1 = time.time()
             remaining_time = max(1, int(self._update_ms - 1e3*(t1-t0)))
-            cv2.imshow(
-                self._caption, cv2.resize(self.image, self._window_shape[:2]))
-            key = cv2.waitKey(remaining_time)
-            if key & 255 == 27:  # ESC
-                print("\nTerminating...")
-                self._terminate = True
-            elif key & 255 == 32:  # ' '
-                print("\nToggling pause: " + str(not is_paused))
-                is_paused = not is_paused
-            elif key & 255 == 115:  # 's'
-                print("\nStepping...")
-                self._terminate = not self._user_fun()
-                is_paused = True
-
+            
+            # cv2.imshow(
+            #     self._caption, cv2.resize(self.image, self._window_shape[:2]))
+            
+            if self.in_notebook:
+                _, ret = cv2.imencode('.jpg', self.image)
+                if self.first_frame:
+                    self.display_handle.display(Image(ret))
+                    self.first_frame = False
+                else:
+                    self.display_handle.update(Image(ret))
+                    
+                key = cv2.waitKey(remaining_time)
+                    
+            else:
+                cv2.imshow(
+                    self._caption, cv2.resize(self.image, self._window_shape[:2]))
+            
+                key = cv2.waitKey(remaining_time)
+                if key & 255 == 27:  # ESC
+                    print("\nTerminating...")
+                    self._terminate = True
+                elif key & 255 == 32:  # ' '
+                    print("\nToggling pause: " + str(not is_paused))
+                    is_paused = not is_paused
+                elif key & 255 == 115:  # 's'
+                    print("\nStepping...")
+                    self._terminate = not self._user_fun()
+                    is_paused = True
+                
         self.image[:] = 0
-        cv2.destroyWindow(self._caption)
+        
+        if not self.in_notebook:
+            cv2.destroyWindow(self._caption)
 
     def stop(self):
         """Stop the control loop.
