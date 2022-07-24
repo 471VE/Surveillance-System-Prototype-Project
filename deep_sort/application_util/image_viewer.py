@@ -338,10 +338,10 @@ class ImageViewer(object):
             if self.in_notebook:
                 _, ret = cv2.imencode('.jpg', self.image)
                 if self.first_frame:
-                    self.display_handle.display(Image(ret))
+                    self.display_handle.display(Image(ret.tobytes()))
                     self.first_frame = False
                 else:
-                    self.display_handle.update(Image(ret))
+                    self.display_handle.update(Image(ret.tobytes()))
                     
                 key = cv2.waitKey(remaining_time)
                     
