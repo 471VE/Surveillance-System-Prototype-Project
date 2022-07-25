@@ -84,7 +84,7 @@ def load_detector(detection_mode, detection_choices, sequence_dir, min_conf):
                 bboxes = outputs['instances'].pred_boxes.tensor.cpu().numpy()
                 bboxes[:, 2] -= bboxes[:, 0]
                 bboxes[:, 3] -= bboxes[:, 1]
-                scores = outputs["instances"].scores.numpy()
+                scores = outputs["instances"].scores.cpu().numpy()
                 h, _ = bboxes.shape
                 outputs = np.c_[-np.ones((h, 2)), bboxes, scores, -np.ones((h, 3))]
                 return outputs
