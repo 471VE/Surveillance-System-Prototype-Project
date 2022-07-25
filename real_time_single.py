@@ -95,9 +95,10 @@ def run_app(detection_mode, encoder, sequence_dir, output_file, min_confidence,
     
     detector = load_detector(detection_mode, detection_choices, sequence_dir, min_confidence)
 
-    def frame_callback(vis, frame_idx):
-        begin_time = time()
-        
+    global end_time
+    end_time = time()
+    
+    def frame_callback(vis, frame_idx):        
         image = cv2.imread(seq_info["image_filenames"][frame_idx], cv2.IMREAD_COLOR)
         
         rows = detector.inference(image)      
@@ -129,7 +130,9 @@ def run_app(detection_mode, encoder, sequence_dir, output_file, min_confidence,
             vis.set_image(image.copy())
             # vis.draw_detections(detections)
             vis.draw_trackers(tracker.tracks)
-            vis.draw_fps(time() - begin_time)
+            global end_time
+            vis.draw_fps(time() - end_time)
+            end_time = time()
 
     # Run tracker.
     if display:

@@ -11,6 +11,12 @@ import sys
 def in_notebook():
     return 'ipykernel' in sys.modules
 
+def in_colab():
+    try:
+        import google.colab
+        return True
+    except:
+        return False
 
 def is_in_bounds(mat, roi):
     """Check if ROI is fully contained in the image.
@@ -121,10 +127,16 @@ class ImageViewer(object):
         
         self.in_notebook = in_notebook()
         if self.in_notebook:
-            global Image
-            from IPython.display import Image, DisplayHandle
-            self.display_handle = DisplayHandle()
-            self.first_frame = True
+            if in_colab():
+                global cv2_imshow
+                from ipywidgets import Output
+                from google.colab.patches import cv2_imshow                
+                self.output = Output()
+            else:
+                global Image
+                from IPython.display import Image, DisplayHandle
+                self.display_handle = DisplayHandle()
+                self.first_frame = True
 
     @property
     def color(self):
@@ -332,18 +344,22 @@ class ImageViewer(object):
             t1 = time.time()
             remaining_time = max(1, int(self._update_ms - 1e3*(t1-t0)))
             
-            # cv2.imshow(
-            #     self._caption, cv2.resize(self.image, self._window_shape[:2]))
-            
             if self.in_notebook:
-                _, ret = cv2.imencode('.jpg', self.image)
-                if self.first_frame:
-                    self.display_handle.display(Image(ret.tobytes()))
-                    self.first_frame = False
+                if in_colab():
+                    with self.output():
+                        cv2_imshow(self.image)
+                    self.output().clear_output(wait=True)
+                    key = cv2.waitKey(remaining_time)
+                
                 else:
-                    self.display_handle.update(Image(ret.tobytes()))
-                    
-                key = cv2.waitKey(remaining_time)
+                    _, ret = cv2.imencode('.jpg', self.image)
+                    if self.first_frame:
+                        self.display_handle.display(Image(ret.tobytes()))
+                        self.first_frame = False
+                    else:
+                        self.display_handle.update(Image(ret.tobytes()))
+                        
+                    key = cv2.waitKey(remaining_time)
                     
             else:
                 cv2.imshow(
