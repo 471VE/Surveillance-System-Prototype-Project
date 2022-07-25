@@ -55,8 +55,9 @@ def main(args):
             args.nms_max_overlap, args.min_detection_height, args.max_cosine_distance,
             args.nn_budget, args.display)
     
-def run_all_videos(path='./MOT_custom'):
-    main(parse_args([f'--mot_dir={path}']))
+def run_all_videos(path='./MOT_custom', display='True'):
+    main(parse_args([f'--mot_dir={path}',
+                     f'--display={display}']))
     
 if __name__ == "__main__":
     main(parse_args())

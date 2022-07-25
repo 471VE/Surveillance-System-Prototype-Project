@@ -221,8 +221,9 @@ def main(args):
         args.nms_max_overlap, args.min_detection_height, args.max_cosine_distance,
         args.nn_budget, args.display)
     
-def run_single_video(video_name):
-    main(parse_args([f'--sequence_dir=./MOT_custom/{video_name}']))
+def run_single_video(video_name, display='True'):
+    main(parse_args([f'--sequence_dir=./MOT_custom/{video_name}',
+                     f'--display={display}']))
     
 if __name__ == "__main__":
     main(parse_args())
