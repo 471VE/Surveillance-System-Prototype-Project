@@ -50,6 +50,8 @@ def load_detector(detection_mode, detection_choices, sequence_dir, min_conf):
         model = exp.get_model()
         ckpt = torch.load(weights, map_location="cpu")
         model.load_state_dict(ckpt["model"])
+        if torch.cuda.is_available():
+            model.cuda()
         model.eval()
 
         detector = Predictor(model, exp)
@@ -79,7 +81,7 @@ def load_detector(detection_mode, detection_choices, sequence_dir, min_conf):
                 outputs = self.predictor(img)
                 outputs['instances'] = outputs['instances'][outputs['instances'].pred_classes == 0]
                 outputs['instances'] = outputs['instances'][outputs['instances'].scores > self.min_conf]
-                bboxes = outputs['instances'].pred_boxes.tensor.numpy()
+                bboxes = outputs['instances'].pred_boxes.tensor.cpu().numpy()
                 bboxes[:, 2] -= bboxes[:, 0]
                 bboxes[:, 3] -= bboxes[:, 1]
                 scores = outputs["instances"].scores.numpy()

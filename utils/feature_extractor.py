@@ -20,7 +20,7 @@ class CustomFeatureExtractor():
         bboxes[:, 2:] = np.minimum(np.asarray(image.shape[:2][::-1]) - 1, bboxes[:, 2:])
 
         image_patches = [image[bbox[1]:bbox[3], bbox[0]:bbox[2], :] for bbox in bboxes]
-        return self.extractor(image_patches).numpy()
+        return self.extractor(image_patches).cpu().numpy()
     
 def create_feature_extractor(model_name, model_path):
     extractor = CustomFeatureExtractor(model_name, model_path)
