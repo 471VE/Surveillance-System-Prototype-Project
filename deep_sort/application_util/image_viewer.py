@@ -346,9 +346,9 @@ class ImageViewer(object):
             
             if self.in_notebook:
                 if in_colab():
-                    with self.output():
+                    with self.output:
                         cv2_imshow(self.image)
-                    self.output().clear_output(wait=True)
+                    self.output.clear_output(wait=True)
                     key = cv2.waitKey(remaining_time)
                 
                 else:
