@@ -7,6 +7,10 @@ results
 # Model weights
 weights/*
 
+# Temporary archives
+weights_surveillance.zip
+MOT_custom.zip
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
