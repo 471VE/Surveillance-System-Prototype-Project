@@ -4,9 +4,9 @@ import os
 from real_time_single import gather_sequence_info
 from tqdm.auto import tqdm
 
-sequences = os.listdir("./MOT_custom")
+sequences = os.listdir("./MOT_temp")
 for sequence in tqdm(sequences):
-    sequence_dir = os.path.join("./MOT_custom", sequence)
+    sequence_dir = os.path.join("./MOT_temp", sequence)
     if not os.path.isdir(sequence_dir):
         continue
     seq_info = gather_sequence_info(sequence_dir)
