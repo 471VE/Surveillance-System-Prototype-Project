@@ -19,3 +19,7 @@ torchvision
 tqdm
 thop
 ninja
+alfred-py
+scipy
+pygit2
+pgzip
