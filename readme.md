@@ -10,7 +10,7 @@ First, clone the repository to your local machine:
 git clone https://github.com/471VE/Surveillance-System-Prototype-Project.git
 ```
 
-Second, install necessary requirements (use ```pip3``` on Linux):
+Second, install necessary requirements (use ```pip3``` on Linux). If you use Windows OS, you might need to install Microsoft Visual C++ prior to that:
 ```
 pip install -r requirements.txt
 
