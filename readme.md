@@ -2,7 +2,7 @@
 
 This is surveillance system prototype based on DeepSORT that has support for better detection and ReID models than the original repository. It uses videos from MOT challenge to demonstrate efficiency and for benchmarking. There are several ways to run this project.
 
-## Method 1.
+## Method 1 (local)
 
 First, clone the repository to your local machine:
 
@@ -40,6 +40,6 @@ python HOTA_evaluation/run_mot_challenge.py
 
 You may also use ```demo.ipynb``` Jupyter Notebook for the same perposes.
 
-## Method 2.
+## Method 2 (on Google Colab)
 
 Alternatively, you can open [```demo_colab.ipynb```](https://github.com/471VE/Surveillance-System-Prototype-Project/blob/master/demo_colab.ipynb) notebook directly on github and follow the instructions there.
