@@ -1,3 +1,0 @@
-name
-KITTI-17
-MOT16-09
