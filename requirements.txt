@@ -19,6 +19,3 @@ torchvision
 tqdm
 thop
 ninja
-alfred-py
-git+https://github.com/facebookresearch/detectron2.git
-git+https://github.com/KaiyangZhou/deep-person-reid.git

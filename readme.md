@@ -13,6 +13,8 @@ git clone https://github.com/471VE/Surveillance-System-Prototype-Project.git
 Second, install necessary requirements (use ```pip3``` on Linux):
 ```
 pip install -r requirements.txt
+
+pip install -r requirements_rep.txt
 ```
 
 Third, download and extarct model weights and MOT videos:
