@@ -14,6 +14,13 @@ import utils.feature_extractor as fe
 from utils.model_info import detection_choices, extractor_choices
 from utils.load_models import load_detector
 
+def in_colab():
+    # try:
+    #     import google.colab
+    #     return True
+    # except:
+    #     return False
+    return True
 
 def bool_string(input_string):
     if input_string not in {"True","False"}:
@@ -41,6 +48,7 @@ def generate_frame_features(encoder, rows, bgr_image):
 
 def gather_sequence_info(sequence_dir):
     image_dir = os.path.join(sequence_dir, "img1")
+    video_filename = os.path.join(sequence_dir, "video.mp4")
     image_filenames = {
         int(os.path.splitext(f)[0]): os.path.join(image_dir, f)
         for f in os.listdir(image_dir)}
@@ -78,7 +86,9 @@ def gather_sequence_info(sequence_dir):
         "image_size": image_size,
         "min_frame_idx": min_frame_idx,
         "max_frame_idx": max_frame_idx,
-        "update_ms": update_ms
+        "update_ms": update_ms,
+        "video_filename": video_filename,
+        "framerate": int(info_dict["frameRate"])
     }
     return seq_info
 
@@ -93,13 +103,28 @@ def run_app(detection_mode, encoder, sequence_dir, output_file, min_confidence,
     tracker = Tracker(metric)
     results = []
     
+    IN_COLAB = in_colab()
+    
     detector = load_detector(detection_mode, detection_choices, sequence_dir, min_confidence)
 
     global end_time
     end_time = time()
     
-    def frame_callback(vis, frame_idx):        
-        image = cv2.imread(seq_info["image_filenames"][frame_idx], cv2.IMREAD_COLOR)
+    if IN_COLAB:
+        global capture
+        capture = cv2.VideoCapture(seq_info["video_filename"])
+        if capture.isOpened() == False:
+            print("Error opening video stream or file")
+
+
+    
+    def frame_callback(vis, frame_idx):
+        if IN_COLAB:
+            ret, image = capture.read()
+            if not ret:
+                return
+        else: 
+            image = cv2.imread(seq_info["image_filenames"][frame_idx], cv2.IMREAD_COLOR)
         
         rows = detector.inference(image)      
         detections = generate_frame_features(encoder, rows, image)
@@ -140,6 +165,9 @@ def run_app(detection_mode, encoder, sequence_dir, output_file, min_confidence,
     else:
         visualizer = visualization.NoVisualization(seq_info)
     visualizer.run(frame_callback)
+    
+    if IN_COLAB:
+        capture.release()
 
     # Store results.
     f = open(output_file, 'w')
